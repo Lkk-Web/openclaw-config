@@ -2,30 +2,31 @@
 
 多机器人 OpenClaw 配置，支持多台电脑同步。
 
-## 架构
+## 快速部署（推荐）
 
-```
-~/.openclaw/
-├── agents/
-│   ├── main/              # 调度中心
-│   └── dev-assistant/     # 开发助手
-└── tools/                 # 公共工具
-    ├── feishu/
-    └── tavily/
+```bash
+# 1. 克隆仓库
+git clone https://github.com/Lkk-Web/openclaw-config.git ~/.openclaw
+
+# 2. 运行部署脚本
+cd ~/.openclaw
+bash setup.sh
 ```
 
-## 首次设置
+脚本会自动：
+- 配置 .env 文件
+- 生成 openclaw.json
+- 重启 Gateway
+
+## 手动部署
 
 ### 1. 克隆仓库
 
 ```bash
-cd ~
-git clone <你的仓库地址> .openclaw
+git clone https://github.com/Lkk-Web/openclaw-config.git ~/.openclaw
 ```
 
-### 2. 配置敏感信息
-
-创建 `.env` 文件：
+### 2. 配置 .env
 
 ```bash
 echo "TAVILY_API_KEY=your-key" > ~/.openclaw/.env
@@ -33,18 +34,30 @@ echo "TAVILY_API_KEY=your-key" > ~/.openclaw/.env
 
 ### 3. 配置 openclaw.json
 
-复制配置模板并修改：
-
 ```bash
 cp openclaw.json.example ~/.openclaw/openclaw.json
-# 编辑配置文件
+# 编辑配置文件，修改用户名和 API keys
 ```
-
 
 ### 4. 重启 Gateway
 
 ```bash
 openclaw gateway restart
+```
+
+
+## 架构
+
+```
+~/.openclaw/
+├── agents/
+│   ├── main/              # 调度中心
+│   │   └── workspace/
+│   └── dev-assistant/     # 开发助手
+│       └── workspace/
+└── tools/                 # 公共工具
+    ├── feishu/
+    └── tavily/
 ```
 
 ## 多台电脑同步
@@ -71,13 +84,3 @@ openclaw gateway restart
 - `.env` 和 `openclaw.json` 不会同步（包含敏感信息）
 - 每台机器需要单独配置这些文件
 - `agents/*/sessions/` 不会同步（会话历史）
-
-## 快速命令
-
-```bash
-# 提交并推送
-cd ~/.openclaw && git add . && git commit -m "update" && git push
-
-# 拉取并重启
-cd ~/.openclaw && git pull && openclaw gateway restart
-```
