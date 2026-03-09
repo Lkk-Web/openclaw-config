@@ -1,18 +1,31 @@
 # 敏感信息
 .env
 openclaw.json
+openclaw.json.bak*
 auth-profiles.json
 *.log
 
-# 会话历史（包含对话内容）
+# 会话历史
 agents/*/sessions/
+agents/*/agent/
 
 # 临时文件
 *.tmp
 *.swp
 .DS_Store
 
-# Node modules（如果有插件）
+# 运行时数据
+canvas/
+completions/
+cron/
+devices/
+identity/
+logs/
+memory/
+update-check.json
+workspace-main/
+
+# Node modules
 node_modules/
 extensions/
 
