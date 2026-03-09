@@ -1,6 +1,6 @@
 # 敏感信息
 .env
-# openclaw.json
+openclaw.json
 openclaw.json.bak*
 auth-profiles.json
 *.log
@@ -22,8 +22,6 @@ devices/
 identity/
 logs/
 memory/
-update-check.json
-workspace-main/
 
 # Node modules
 node_modules/
