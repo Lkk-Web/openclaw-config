@@ -1,6 +1,6 @@
 # 敏感信息
 .env
-openclaw.json
+# openclaw.json
 openclaw.json.bak*
 auth-profiles.json
 *.log
