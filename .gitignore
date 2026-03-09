@@ -1,0 +1,20 @@
+# 敏感信息
+.env
+openclaw.json
+auth-profiles.json
+*.log
+
+# 会话历史（包含对话内容）
+agents/*/sessions/
+
+# 临时文件
+*.tmp
+*.swp
+.DS_Store
+
+# Node modules（如果有插件）
+node_modules/
+extensions/
+
+# 重启标记
+restart-sentinel.json
