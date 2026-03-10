@@ -8,6 +8,8 @@ auth-profiles.json
 # 会话历史
 agents/*/sessions/
 agents/*/agent/
+agents/*/workspace/*.json
+agents/*/workspace/.openclaw
 
 # 临时文件
 *.tmp
