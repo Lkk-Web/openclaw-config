@@ -51,3 +51,42 @@
 
 配置更新后需要重启：`kill -HUP <pid>`
 
+## Skills 管理
+
+### Skills 加载路径
+OpenClaw 自动扫描以下路径（无需配置）：
+1. `~/.openclaw/skills/` - 用户全局 skills
+2. `<repo>/skills/` - 仓库内置 skills
+
+### 为 Agent 添加 Skill
+
+**方法：复制到 Agent workspace**
+```bash
+# 1. 创建 skills 目录
+mkdir -p ~/.openclaw/agents/<agent-id>/workspace/skills
+
+# 2. 复制 skill
+cp -r <source-skill-path> ~/.openclaw/agents/<agent-id>/workspace/skills/
+
+# 3. 确保配置中包含路径（通常已配置）
+# ~/.openclaw/openclaw.json
+{
+  "skills": {
+    "load": {
+      "extraDirs": [
+        "~/Users/liukangkai/.openclaw/agents/<agent-id>/workspace/skills"
+      ]
+    }
+  }
+}
+
+# 4. 重启生效
+openclaw gateway restart
+```
+
+**示例：为 main 添加 summarize**
+```bash
+cp -r ~/Desktop/github/ai/openclaw/skills/summarize \
+  ~/.openclaw/agents/main/workspace/skills/
+```
+
