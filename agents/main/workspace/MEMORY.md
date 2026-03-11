@@ -12,7 +12,12 @@
    - 职责：协调前后端开发任务
    - Subagents：frontend-dev, backend-dev, test-reviewer
 
-3. **test-reviewer (测试评审者)**
+3. **product-manager (pm-产品经理)**
+   - 角色：产品经理
+   - 职责：市场分析、竞品调研、功能规划、产品建议
+   - 创建时间：2026-03-11
+
+4. **test-reviewer (测试评审者)**
    - 角色：测试与代码评审专家
    - 职责：代码测试、评审、PR 管理
    - 创建时间：2026-03-10
