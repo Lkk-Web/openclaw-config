@@ -24,6 +24,7 @@ devices/
 identity/
 logs/
 memory/
+browser/
 
 # Node modules
 node_modules/
