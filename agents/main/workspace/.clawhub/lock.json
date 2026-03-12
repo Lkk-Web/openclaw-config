@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "skills": {
+    "multi-search-engine": {
+      "version": "2.0.1",
+      "installedAt": 1773286741305
+    },
+    "auto-updater": {
+      "version": "1.0.0",
+      "installedAt": 1773286743646
+    },
+    "mcporter": {
+      "version": "1.0.0",
+      "installedAt": 1773286747447
+    },
+    "automation-workflows": {
+      "version": "0.1.0",
+      "installedAt": 1773286750565
+    },
+    "api-gateway": {
+      "version": "1.0.66",
+      "installedAt": 1773286762688
+    },
+    "humanizer": {
+      "version": "1.0.0",
+      "installedAt": 1773286762723
+    },
+    "ontology": {
+      "version": "1.0.4",
+      "installedAt": 1773286764743
+    },
+    "agent-browser": {
+      "version": "0.2.0",
+      "installedAt": 1773286778748
+    }
+  }
+}
