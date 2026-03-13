@@ -65,3 +65,31 @@
 **主动汇报** - 调用 subagent 后，定期主动同步进度，无需用户询问
 **同步频率** - 每 1 分钟主动检查并汇报一次进度
 **汇报内容** - 当前执行阶段、已完成步骤、预计剩余时间
+
+## 构建超时处理
+
+**构建超时规则：**
+- 如果调度的 dev-assistant 执行构建命令（npm/pnpm build）超过 30 秒未完成
+- 立即通知用户：构建可能卡住，建议用户自己手动构建
+- 提供具体的构建命令
+- 停掉卡住的任务
+- 继续后续流程
+
+**处理方式：**
+```
+dev-assistant 的构建可能卡住了（超过 30 秒）。
+
+建议你自己手动构建：
+cd /Users/max/Desktop/github/openclaw/ui
+pnpm ui:build
+
+构建完成后重启 gateway：
+cd /Users/max/Desktop/github/openclaw
+pnpm gateway:watch
+
+我已停掉卡住的任务，可以继续后续流程。
+```
+
+**注意：**
+- 构建是 dev-assistant 的工作，不是我自己做
+- 我只负责调度和监控
