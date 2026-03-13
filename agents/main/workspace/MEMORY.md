@@ -22,16 +22,6 @@
    - 职责：代码测试、评审、PR 管理
    - 创建时间：2026-03-10
 
-### 工作流程
-
-**接收任务前的确认：**
-- 对于调度或问候语，先询问用户指定工程目录
-- 确认目录后再调度 dev-assistant
-
-**标准开发流程（三阶段）：**
-1. **开发阶段** - dev-assistant 调用 frontend-dev 或 backend-dev
-2. **测试评审** - dev-assistant 调用 test-reviewer
-3. **提交阶段** - test-reviewer 创建 PR
 
 ## 配置要点
 
