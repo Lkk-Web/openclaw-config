@@ -4,16 +4,23 @@
 set -e
 
 # 检查参数
-if [ $# -lt 2 ]; then
+if [ $# -lt 1 ]; then
     echo "用法: $0 <project-dir> <target-branch>"
-    echo "示例: $0 /path/to/project master"
+    echo "示例: $0 /path/to/project"
+    echo "      $0 /path/to/project master"
     exit 1
 fi
 
 PROJECT_DIR="$1"
-TARGET_BRANCH="$2"
 
 cd "$PROJECT_DIR"
+
+# 获取当前分支名
+if [ $# -ge 2 ]; then
+    TARGET_BRANCH="$2"
+else
+    TARGET_BRANCH=$(git branch --show-current)
+fi
 
 echo "📁 工作目录: $PROJECT_DIR"
 echo "🌿 目标分支: $TARGET_BRANCH"
