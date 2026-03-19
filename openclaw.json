@@ -1,1 +1,352 @@
-{}
+{
+  "meta": {
+    "lastTouchedVersion": "2026.3.14",
+    "lastTouchedAt": "2026-03-19T02:49:09.487Z"
+  },
+  "wizard": {
+    "lastRunAt": "2026-03-12T11:16:44.029Z",
+    "lastRunVersion": "2026.3.8",
+    "lastRunCommand": "doctor",
+    "lastRunMode": "local"
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "cass-gpt": {
+        "baseUrl": "${CASS_BASE_URL}/v1",
+        "apiKey": "${CASS_API_KEY}",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "gpt-5.2-chat",
+            "name": "gpt-5.2-chat",
+            "reasoning": false,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 200000,
+            "maxTokens": 100000
+          }
+        ]
+      },
+      "cass-codex": {
+        "baseUrl": "${CASS_BASE_URL}/v1",
+        "apiKey": "${CASS_API_KEY}",
+        "api": "openai-responses",
+        "models": [
+          {
+            "id": "gpt-5.3-codex",
+            "name": "gpt-5.3-codex",
+            "reasoning": false,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 200000,
+            "maxTokens": 100000
+          }
+        ]
+      },
+      "cass-claude": {
+        "baseUrl": "${CASS_BASE_URL}",
+        "apiKey": "${CASS_API_KEY}",
+        "api": "anthropic-messages",
+        "models": [
+          {
+            "id": "claude-sonnet-4-5-20250929",
+            "name": "claude-sonnet-4-5-20250929",
+            "reasoning": false,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 200000,
+            "maxTokens": 100000
+          },
+          {
+            "id": "claude-opus-4-6",
+            "name": "claude-opus-4-6",
+            "api": "anthropic-messages",
+            "reasoning": false,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 200000,
+            "maxTokens": 100000
+          }
+        ]
+      },
+      "zhipu": {
+        "baseUrl": "${ZHIPU_BASE_URL}",
+        "apiKey": "${ZHIPU_API_KEY}",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "ZhipuAI/GLM-5",
+            "name": "ZhipuAI/GLM-5",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 200000,
+            "maxTokens": 100000
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "cass-claude/claude-opus-4-6"
+      },
+      "models": {
+        "cass-gpt/gpt-5.2-chat": {},
+        "cass-codex/gpt-5.3-codex": {},
+        "cass-claude/claude-opus-4-6": {},
+        "cass-claude/claude-sonnet-4-5-20250929": {},
+        "zhipu/ZhipuAI/GLM-5": {}
+      },
+      "workspace": "~/.openclaw/agents/main/workspace",
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "maxConcurrent": 4,
+      "subagents": {
+        "maxConcurrent": 8
+      }
+    },
+    "list": [
+      {
+        "id": "main",
+        "workspace": "～/.openclaw/agents/main/workspace",
+        "model": {
+          "primary": "cass-codex/gpt-5.3-codex"
+        },
+        "heartbeat": {
+          "accountId": "main"
+        }
+      },
+      {
+        "id": "dev-assistant",
+        "workspace": "～/.openclaw/agents/dev-assistant/workspace",
+        "model": {
+          "primary": "cass-claude/claude-opus-4-6"
+        },
+        "subagents": {
+          "allowAgents": [
+            "frontend-dev",
+            "backend-dev",
+            "test-reviewer"
+          ]
+        }
+      },
+      {
+        "id": "product-manager",
+        "workspace": "～/.openclaw/agents/product-manager/workspace",
+        "model": {
+          "primary": "cass-claude/claude-opus-4-6"
+        }
+      },
+      {
+        "id": "investor",
+        "workspace": "～/.openclaw/agents/investor/workspace",
+        "model": {
+          "primary": "cass-claude/claude-opus-4-6"
+        }
+      }
+    ]
+  },
+  "tools": {
+    "sessions": {
+      "visibility": "all"
+    },
+    "agentToAgent": {
+      "enabled": true,
+      "allow": [
+        "main",
+        "dev-assistant",
+        "product-manager",
+        "investor"
+      ]
+    }
+  },
+  "bindings": [
+    {
+      "agentId": "main",
+      "match": {
+        "channel": "feishu",
+        "accountId": "main"
+      }
+    },
+    {
+      "agentId": "dev-assistant",
+      "match": {
+        "channel": "feishu",
+        "accountId": "dev-assistant"
+      }
+    },
+    {
+      "agentId": "investor",
+      "match": {
+        "channel": "feishu",
+        "accountId": "investor"
+      }
+    }
+  ],
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "session": {
+    "dmScope": "per-channel-peer"
+  },
+  "hooks": {
+    "internal": {
+      "enabled": true,
+      "entries": {
+        "boot-md": {
+          "enabled": true
+        },
+        "command-logger": {
+          "enabled": true
+        },
+        "session-memory": {
+          "enabled": true
+        },
+        "bootstrap-extra-files": {
+          "enabled": true
+        }
+      }
+    }
+  },
+  "channels": {
+    "feishu": {
+      "enabled": true,
+      "accounts": {
+        "main": {
+          "appId": "${FEISHU_MAIN_APP_ID}",
+          "appSecret": "${FEISHU_MAIN_APP_SECRET}",
+          "botName": "main-调度者",
+          "agent": "main"
+        },
+        "dev-assistant": {
+          "appId": "${FEISHU_DEV_APP_ID}",
+          "appSecret": "${FEISHU_DEV_APP_SECRET}",
+          "botName": "dev-开发者",
+          "agent": "dev-assistant"
+        },
+        "secondary": {
+          "appId": "${FEISHU_SECONDARY_APP_ID}",
+          "appSecret": "${FEISHU_SECONDARY_APP_SECRET}",
+          "botName": "备用机器人",
+          "enabled": true
+        },
+        "default": {
+          "dmPolicy": "open",
+          "allowFrom": [
+            "*"
+          ]
+        },
+        "investor": {
+          "appId": "${FEISHU_INVESTOR_APP_ID}",
+          "appSecret": "${FEISHU_INVESTOR_APP_SECRET}",
+          "botName": "investor-投资者",
+          "agent": "investor"
+        }
+      },
+      "groups": {
+        "oc_99aa8812cd7f0b5bab006e460c74b29a": {
+          "requireMention": true
+        },
+        "oc_c6fd1358a5ef9c3fad809293283eeeb1": {
+          "requireMention": true
+        }
+      },
+      "allowFrom": [
+        "*",
+        "ou_1574ac96e13ba7f4e58baf0ad7354cef"
+      ],
+      "chunkMode": "progressive"
+    }
+  },
+  "gateway": {
+    "mode": "local",
+    "auth": {
+      "mode": "token",
+      "token": "${GATEWAY_AUTH_TOKEN}"
+    }
+  },
+  "memory": {
+    "backend": "builtin",
+    "citations": "auto"
+  },
+  "skills": {
+    "load": {
+      "extraDirs": [
+        "~/.openclaw/skills",
+        "~~/.openclaw/agents/dev-assistant/workspace/skills",
+        "~~/.openclaw/agents/main/workspace/skills",
+        "~~/.openclaw/agents/investor/workspace/skills"
+      ],
+      "watch": true,
+      "watchDebounceMs": 250
+    }
+  },
+  "plugins": {
+    "entries": {
+      "feishu": {
+        "enabled": true
+      }
+    },
+    "installs": {
+      "feishu": {
+        "source": "npm",
+        "spec": "@openclaw/feishu@2026.2.24",
+        "installPath": "/root/.openclaw/extensions/feishu",
+        "version": "2026.2.24",
+        "resolvedName": "@openclaw/feishu",
+        "resolvedVersion": "2026.2.24",
+        "resolvedSpec": "@openclaw/feishu@2026.2.24",
+        "integrity": "sha512-/YNWeOH56WU2WvHD+5zu4sxRzlBoK5Vwcg8eQV4hNj2xV3fDDsdV/laAWnbzjBccCgBv0zXrEpeiK/uZ/EcZ6A==",
+        "shasum": "a32f577fc752f9dceb6b058cc8e56e05e139c1df",
+        "resolvedAt": "2026-03-02T09:05:02.250Z",
+        "installedAt": "2026-03-02T09:05:14.495Z"
+      }
+    }
+  }
+}
