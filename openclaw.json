@@ -18,8 +18,8 @@
         "api": "openai-completions",
         "models": [
           {
-            "id": "gpt-5.2-chat",
-            "name": "gpt-5.2-chat",
+            "id": "qwen3.5-plus",
+            "name": "qwen3.5-plus",
             "reasoning": false,
             "input": [
               "text",
@@ -31,19 +31,66 @@
               "cacheRead": 0,
               "cacheWrite": 0
             },
-            "contextWindow": 200000,
-            "maxTokens": 100000
-          }
-        ]
-      },
-      "cass-codex": {
-        "baseUrl": "${CASS_BASE_URL}/v1",
-        "apiKey": "${CASS_API_KEY}",
-        "api": "openai-responses",
-        "models": [
+            "contextWindow": 1000000,
+            "maxTokens": 65536,
+            "compat": {
+              "thinkingFormat": "qwen"
+            }
+          },
           {
-            "id": "gpt-5.3-codex",
-            "name": "gpt-5.3-codex",
+            "id": "qwen3-max-2026-01-23",
+            "name": "qwen3-max-2026-01-23",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 262144,
+            "maxTokens": 65536,
+            "compat": {
+              "thinkingFormat": "qwen"
+            }
+          },
+          {
+            "id": "qwen3-coder-next",
+            "name": "qwen3-coder-next",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 262144,
+            "maxTokens": 65536
+          },
+          {
+            "id": "qwen3-coder-plus",
+            "name": "qwen3-coder-plus",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 1000000,
+            "maxTokens": 65536
+          },
+          {
+            "id": "MiniMax-M2.5",
+            "name": "MiniMax-M2.5",
             "reasoning": false,
             "input": [
               "text",
@@ -55,7 +102,63 @@
               "cacheRead": 0,
               "cacheWrite": 0
             },
-            "contextWindow": 200000,
+            "contextWindow": 196608,
+            "maxTokens": 32768
+          },
+          {
+            "id": "glm-5",
+            "name": "glm-5",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 202752,
+            "maxTokens": 16384,
+            "compat": {
+              "thinkingFormat": "qwen"
+            }
+          },
+          {
+            "id": "kimi-k2.5",
+            "name": "kimi-k2.5",
+            "reasoning": false,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 262144,
+            "maxTokens": 32768,
+            "compat": {
+              "thinkingFormat": "qwen"
+            }
+          },
+          {
+            "id": "deepseek-chat",
+            "name": "deepseek-chat",
+            "reasoning": false,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 170000,
             "maxTokens": 100000
           }
         ]
@@ -66,8 +169,8 @@
         "api": "anthropic-messages",
         "models": [
           {
-            "id": "claude-sonnet-4-5-20250929",
-            "name": "claude-sonnet-4-5-20250929",
+            "id": "claude-sonnet-4-6",
+            "name": "claude-sonnet-4-6",
             "reasoning": false,
             "input": [
               "text",
@@ -79,7 +182,7 @@
               "cacheRead": 0,
               "cacheWrite": 0
             },
-            "contextWindow": 200000,
+            "contextWindow": 170000,
             "maxTokens": 100000
           },
           {
@@ -97,7 +200,31 @@
               "cacheRead": 0,
               "cacheWrite": 0
             },
-            "contextWindow": 200000,
+            "contextWindow": 170000,
+            "maxTokens": 100000
+          }
+        ]
+      },
+      "cass-gemini": {
+        "baseUrl": "${CASS_BASE_URL}/v1",
+        "apiKey": "${CASS_API_KEY}",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "gemini-3.1-pro-preview",
+            "name": "gemini-3.1-pro-preview",
+            "reasoning": false,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 170000,
             "maxTokens": 100000
           }
         ]
@@ -130,13 +257,19 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "cass-claude/claude-opus-4-6"
+        "primary": "cass-gpt/MiniMax-M2.5"
       },
       "models": {
-        "cass-gpt/gpt-5.2-chat": {},
-        "cass-codex/gpt-5.3-codex": {},
+        "cass-gpt/qwen3.5-plus": {},
+        "cass-gpt/qwen3-max-2026-01-23": {},
+        "cass-gpt/qwen3-coder-next": {},
+        "cass-gpt/qwen3-coder-plus": {},
+        "cass-gpt/glm-5": {},
+        "cass-gpt/kimi-k2.5": {},
+        "cass-gpt/MiniMax-M2.5": {},
+        "cass-gpt/deepseek-chat": {},
         "cass-claude/claude-opus-4-6": {},
-        "cass-claude/claude-sonnet-4-5-20250929": {},
+        "cass-claude/claude-sonnet-4-6": {},
         "zhipu/ZhipuAI/GLM-5": {}
       },
       "workspace": "~/.openclaw/agents/main/workspace",
@@ -151,19 +284,25 @@
     "list": [
       {
         "id": "main",
-        "workspace": "～/.openclaw/agents/main/workspace",
+        "workspace": "~/.openclaw/agents/main/workspace",
         "model": {
-          "primary": "cass-codex/gpt-5.3-codex"
+          "primary": "cass-gpt/MiniMax-M2.5"
         },
         "heartbeat": {
           "accountId": "main"
+        },
+        "subagents": {
+          "allowAgents": [
+            "dev-assistant",
+            "product-manager"
+          ]
         }
       },
       {
         "id": "dev-assistant",
-        "workspace": "～/.openclaw/agents/dev-assistant/workspace",
+        "workspace": "~/.openclaw/agents/dev-assistant/workspace",
         "model": {
-          "primary": "cass-claude/claude-opus-4-6"
+          "primary": "cass-gpt/MiniMax-M2.5"
         },
         "subagents": {
           "allowAgents": [
@@ -175,16 +314,9 @@
       },
       {
         "id": "product-manager",
-        "workspace": "～/.openclaw/agents/product-manager/workspace",
+        "workspace": "~/.openclaw/agents/product-manager/workspace",
         "model": {
-          "primary": "cass-claude/claude-opus-4-6"
-        }
-      },
-      {
-        "id": "investor",
-        "workspace": "～/.openclaw/agents/investor/workspace",
-        "model": {
-          "primary": "cass-claude/claude-opus-4-6"
+          "primary": "cass-gpt/MiniMax-M2.5"
         }
       }
     ]
@@ -319,9 +451,8 @@
     "load": {
       "extraDirs": [
         "~/.openclaw/skills",
-        "~~/.openclaw/agents/dev-assistant/workspace/skills",
-        "~~/.openclaw/agents/main/workspace/skills",
-        "~~/.openclaw/agents/investor/workspace/skills"
+        "~/.openclaw/agents/dev-assistant/workspace/skills",
+        "~/.openclaw/agents/main/workspace/skills"
       ],
       "watch": true,
       "watchDebounceMs": 250
