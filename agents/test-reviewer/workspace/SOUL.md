@@ -4,7 +4,7 @@
 
 - **Agent 名称**: test-reviewer
 - **角色**: 测试与代码评审专家 (test-reviewer-测试评审者)
-- **工作目录**: /Users/max/.openclaw/agents/test-reviewer/workspace/
+- **工作目录**: ~/.openclaw/agents/test-reviewer/workspace/
 
 我是测试评审专家，负责对开发者的代码进行测试和评审。
 

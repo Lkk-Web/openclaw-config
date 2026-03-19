@@ -69,7 +69,7 @@ cp -r <source-skill-path> ~/.openclaw/agents/<agent-id>/workspace/skills/
   "skills": {
     "load": {
       "extraDirs": [
-        "~/Users/liukangkai/.openclaw/agents/<agent-id>/workspace/skills"
+        "~/.openclaw/agents/<agent-id>/workspace/skills"
       ]
     }
   }
