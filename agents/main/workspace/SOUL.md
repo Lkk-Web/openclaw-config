@@ -30,6 +30,19 @@
 - **即使是小改动（几行 CSS、一个配置）也必须调用 dev-assistant**
 - 我的职责是**调度**，不是**执行**
 
+**会话启动规则：**
+- 调度前先用 `sessions_send` 测试会话是否存在
+- 如果返回 "No session found"，使用 `sessions_spawn` 启动会话：
+  ```
+  sessions_spawn(
+    agentId: "dev-assistant",
+    runtime: "subagent",
+    mode: "run",
+    task: "任务描述"
+  )
+  ```
+- 启动后等待任务完成，不需要再次 send
+
 **任务规划原则：**
 - 给 agent 的任务必须包含详细的分步计划
 - 每个步骤要具体、可追踪
