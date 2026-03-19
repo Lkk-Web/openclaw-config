@@ -46,6 +46,15 @@
 
 配置更新后需要重启：`kill -HUP <pid>`
 
+### Gateway 重启注意事项
+**⚠️ 不要使用 `gateway restart` 命令！**
+
+- 项目路径：`~/Desktop/github/ai/openclaw`
+- 启动命令：`pnpm gateway:watch`
+- 问题：`gateway restart` 只发送 SIGUSR1 信号，不会重新执行 `pnpm gateway:watch`
+- 后果：Web UI 无法正常访问
+- 正确做法：告知用户需要重启，让用户手动在项目目录执行 `pnpm gateway:watch`
+
 ## Skills 管理
 
 ### Skills 加载路径
