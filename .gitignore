@@ -31,5 +31,8 @@ browser/
 node_modules/
 extensions/
 
-# 重启标记
+# cache files
 restart-sentinel.json
+update-check.json
+exec-approvals.json
+update-check.json

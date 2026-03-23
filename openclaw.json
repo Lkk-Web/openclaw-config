@@ -294,7 +294,8 @@
         "subagents": {
           "allowAgents": [
             "dev-assistant",
-            "product-manager"
+            "product-manager",
+            "harness"
           ]
         }
       },
@@ -318,6 +319,13 @@
         "model": {
           "primary": "cass-gpt/MiniMax-M2.5"
         }
+      },
+      {
+        "id": "harness",
+        "workspace": "~/.openclaw/agents/harness/workspace",
+        "model": {
+          "primary": "cass-gpt/MiniMax-M2.5"
+        }
       }
     ]
   },
@@ -331,7 +339,7 @@
         "main",
         "dev-assistant",
         "product-manager",
-        "investor"
+        "harness"
       ]
     }
   },
