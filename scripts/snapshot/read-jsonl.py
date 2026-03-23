@@ -192,10 +192,46 @@ def import_sessions(agent_id="main", limit=None):
             except sqlite3.IntegrityError:
                 pass
     
+    # 创建 snapshot 记录（用于增量同步）
+    if total_messages > 0:
+        cursor.execute("""
+            INSERT INTO snapshots (snapshot_id, agent_id, session_id, created_at, trigger_type, status)
+            VALUES (?, ?, ?, datetime('now'), 'scheduled', 'completed')
+        """, (
+            f"snap_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            agent_id,
+            session.get("session_id", "unknown") if sessions else "unknown"
+        ))
+    
     conn.commit()
+    
+    # 获取导入的会话详情
+    if total_sessions > 0:
+        cursor.execute("""
+            SELECT s.session_id, s.started_at, s.message_count, 
+                   (SELECT content FROM messages WHERE session_id = s.session_id AND role = 'user' ORDER BY timestamp LIMIT 1) as first_msg
+            FROM sessions s
+            WHERE s.session_id IN (
+                SELECT session_id FROM sessions ORDER BY started_at DESC LIMIT ?
+            )
+        """, (total_sessions,))
+        
+        session_details = cursor.fetchall()
+        
+        print(f"\n📋 导入的核心会话:")
+        for sid, started_at, msg_count, first_msg in session_details:
+            # 提取会话摘要（第一条用户消息的前50字符）
+            if first_msg:
+                summary = first_msg[:60].replace('\n', ' ').strip()
+                if len(first_msg) > 60:
+                    summary += "..."
+            else:
+                summary = "(无用户消息)"
+            print(f"   • {sid[:12]}... | {msg_count}条消息 | {summary}")
+    
     conn.close()
     
-    print(f"✅ 导入完成:")
+    print(f"\n✅ 导入完成:")
     print(f"   - 会话: {total_sessions}")
     print(f"   - 消息: {total_messages}")
     print(f"   - 工具: {total_tools}")

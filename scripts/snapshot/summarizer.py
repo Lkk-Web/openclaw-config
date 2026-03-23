@@ -38,7 +38,7 @@ def call_llm(prompt, system_prompt=None, max_retries=3):
         for attempt in range(max_retries):
             try:
                 data = json.dumps({
-                    "model": "gpt-5.4",
+                    "model": "MiniMax-M2.5",
                     "messages": messages,
                     "max_tokens": 2000
                 }).encode('utf-8')

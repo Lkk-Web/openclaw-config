@@ -92,7 +92,7 @@ full_snapshot() {
     init_db
     
     # 2. 导入会话数据
-    import_sessions 20
+    import_sessions 10
     
     # 3. 生成摘要
     generate_summary
@@ -129,6 +129,49 @@ check_threshold() {
 }
 
 #=============================================================================
+# 增量导入（自上次更新后）
+#=============================================================================
+incremental_import() {
+    log_info "执行增量导入..."
+    
+    # 获取上次更新的时间戳
+    local last_update=$(sqlite3 "$DB_PATH" "SELECT MAX(created_at) FROM snapshots;" 2>/dev/null || echo "")
+    
+    if [ -z "$last_update" ]; then
+        log_info "没有历史记录，执行完整导入..."
+        import_sessions 10
+    else
+        log_info "上次更新: $last_update"
+        # 目前 read-jsonl.py 不支持 import-since，需要扩展或全量导入
+        log_info "增量模式：导入最近更新的会话"
+        import_sessions 5
+    fi
+}
+
+#=============================================================================
+# 增量图谱导出
+#=============================================================================
+incremental_graph() {
+    log_info "执行增量图谱导出..."
+    python3 "$SCRIPT_DIR/export-graph.py" incremental
+}
+
+#=============================================================================
+# 完整增量流程
+#=============================================================================
+incremental() {
+    log_info "========== 开始增量图谱更新 =========="
+    
+    # 1. 增量导入新会话
+    incremental_import
+    
+    # 2. 增量导出图谱（跳过 summarizer，避免超时）
+    incremental_graph
+    
+    log_info "========== 增量图谱更新完成 =========="
+}
+
+#=============================================================================
 # 帮助信息
 #=============================================================================
 show_help() {
@@ -141,6 +184,7 @@ show_help() {
     echo "  graph [snapshot]  导出图谱 (可选指定快照)"
     echo "  tokens            检查 token 使用情况"
     echo "  full              执行完整快照流程"
+    echo "  incremental       执行增量图谱更新（每2小时）"
     echo "  threshold [n]     检查 token 阈值 (默认 40K)"
     echo "  help              显示帮助"
     echo ""
@@ -172,6 +216,9 @@ case "${1:-help}" in
         ;;
     full)
         full_snapshot
+        ;;
+    incremental)
+        incremental
         ;;
     threshold)
         check_threshold ${2:-40000}
