@@ -14,8 +14,13 @@ import re
 SESSIONS_DIR = os.path.expanduser("~/.openclaw/agents/main/sessions")
 DB_PATH = os.path.expanduser("~/.openclaw/memory/snapshot.db")
 
-def get_text_content(content_list):
-    """从消息内容中提取纯文本"""
+def get_text_content(content_list, role=None):
+    """从消息内容中提取纯文本
+    
+    Args:
+        content_list: 消息内容列表
+        role: 消息角色 (user/assistant/system)
+    """
     if not content_list:
         return ""
     
@@ -23,16 +28,31 @@ def get_text_content(content_list):
     for item in content_list:
         if isinstance(item, dict):
             if item.get("type") == "text":
-                text_parts.append(item.get("text", ""))
+                text = item.get("text", "")
+                text_parts.append(text)
             elif item.get("type") == "toolCall":
-                # 提取工具调用信息
                 tool_name = item.get("name", "unknown")
-                args = item.get("arguments", {})
                 text_parts.append(f"[Tool: {tool_name}]")
         elif isinstance(item, str):
             text_parts.append(item)
     
-    return "\n".join(text_parts)
+    result = "\n".join(text_parts)
+    
+    # 对于 user 角色，处理特殊格式
+    if role == "user" and result:
+        # 匹配时间戳前缀模式: [Day Mon DD HH:MM GMT+8]
+        result = re.sub(r'^\[[A-Za-z]{3}\s+\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}\s+GMT[+-]?\d+\]\s*', '', result)
+        
+        # 处理格式: "Conversation info...Sender (untrusted metadata)...实际文本"
+        # 找到最后的 "```\n```" 之后的内容
+        if '```' in result:
+            parts = result.split('```')
+            if len(parts) > 2:
+                last_part = parts[-1].strip()
+                if last_part:
+                    result = last_part
+    
+    return result
 
 def parse_session_file(filepath):
     """解析单个 session 文件"""
@@ -71,7 +91,7 @@ def parse_session_file(filepath):
                         "session_id": data.get("parentId", "").split("-")[0] if data.get("parentId") else "",
                         "parent_id": data.get("parentId"),
                         "role": role,
-                        "content": get_text_content(content),
+                        "content": get_text_content(content, role=role),
                         "timestamp": data.get("timestamp"),
                         "token_count": token_count
                     })
@@ -205,11 +225,16 @@ def import_sessions(agent_id="main", limit=None):
     
     conn.commit()
     
-    # 获取导入的会话详情
+    # 获取导入的会话详情（只显示用户核心问答）
     if total_sessions > 0:
+        # 只获取 role='user' 的首条消息
         cursor.execute("""
-            SELECT s.session_id, s.started_at, s.message_count, 
-                   (SELECT content FROM messages WHERE session_id = s.session_id AND role = 'user' ORDER BY timestamp LIMIT 1) as first_msg
+            SELECT s.session_id, s.started_at, 
+                   (SELECT COUNT(*) FROM messages WHERE session_id = s.session_id) as msg_count,
+                   (SELECT content FROM messages 
+                    WHERE session_id = s.session_id 
+                    AND role = 'user' 
+                    ORDER BY timestamp LIMIT 1) as first_user_msg
             FROM sessions s
             WHERE s.session_id IN (
                 SELECT session_id FROM sessions ORDER BY started_at DESC LIMIT ?
@@ -218,23 +243,26 @@ def import_sessions(agent_id="main", limit=None):
         
         session_details = cursor.fetchall()
         
-        print(f"\n📋 导入的核心会话:")
-        for sid, started_at, msg_count, first_msg in session_details:
-            # 提取会话摘要（第一条用户消息的前50字符）
-            if first_msg:
-                summary = first_msg[:60].replace('\n', ' ').strip()
-                if len(first_msg) > 60:
+        import re
+        print(f"\n📋 核心用户会话:")
+        for sid, started_at, msg_count, first_user_msg in session_details:
+            if first_user_msg:
+                # 尝试提取纯文本内容
+                text_match = re.search(r'(?:text|text\":\")([^\"]+)', first_user_msg)
+                if text_match:
+                    summary = text_match.group(1)[:60].replace('\n', ' ').strip()
+                else:
+                    # 清理内容获取前60字符
+                    summary = first_user_msg[:60].replace('\n', ' ').strip()
+                if len(first_user_msg) > 60:
                     summary += "..."
             else:
                 summary = "(无用户消息)"
-            print(f"   • {sid[:12]}... | {msg_count}条消息 | {summary}")
+            print(f"   • {sid[:12]}... | {msg_count}条消息 | 用户请求：{summary}")
     
     conn.close()
     
-    print(f"\n✅ 导入完成:")
-    print(f"   - 会话: {total_sessions}")
-    print(f"   - 消息: {total_messages}")
-    print(f"   - 工具: {total_tools}")
+    print(f"\n✅ 导入完成")
 
 def get_session_tokens(session_id):
     """获取指定会话的 token 总数"""

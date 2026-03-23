@@ -45,25 +45,8 @@ def export_to_jsonl(snapshot_id, output_path=None):
     edges = []
     entities = set()
 
-    # 工具相关实体
-    tool_usage = defaultdict(int)
-    cursor.execute("""
-        SELECT tool_name, COUNT(*) as count
-        FROM tools
-        WHERE session_id IN (
-            SELECT session_id FROM snapshots WHERE snapshot_id = ?
-        )
-        GROUP BY tool_name
-    """, (snapshot_id,))
-
-    for tool_name, count in cursor.fetchall():
-        tool_node = {
-            "id": f"tool_{tool_name}",
-            "type": "tool",
-            "label": tool_name,
-            "properties": {"usage_count": count}
-        }
-        nodes.append(tool_node)
+    # 只记录用户问答会话，排除工具调用相关内容
+    # 工具相关实体不再导出
 
     # 关键词实体
     cursor.execute("""
@@ -97,18 +80,27 @@ def export_to_jsonl(snapshot_id, output_path=None):
             })
 
     # 创建边（关系）
-    # 会话 -> 工具使用关系
-    for session_id in session_ids:
-        cursor.execute("""
-            SELECT DISTINCT tool_name FROM tools WHERE session_id = ?
-        """, (session_id,))
-
-        for (tool_name,) in cursor.fetchall():
-            edges.append({
-                "from": f"session_{session_id[:8]}",
-                "to": f"tool_{tool_name}",
-                "type": "uses"
-            })
+    # 只记录用户问答关系，排除工具调用
+    # 同一会话内的问答关系
+    user_sessions = set()
+    for msg in messages:
+        session_id, message_id, role, content, timestamp, token_count = msg
+        
+        # 跳过工具调用相关的内容
+        if content and ("toolCall" in content or "[Tool:" in content or "tool_call" in content):
+            continue
+        
+        # 用户消息节点
+        if role == "user" and session_id:
+            user_sessions.add(session_id)
+    
+    # 创建同一会话内的问答关系边
+    for session_id in user_sessions:
+        edges.append({
+            "from": f"session_{session_id[:8]}",
+            "to": f"session_{session_id[:8]}",
+            "type": "qa_session"
+        })
 
     conn.close()
 
@@ -160,13 +152,17 @@ def generate_graph_from_messages(snapshot_id, session_id=None):
     # 实体提取
     entities = []
 
-    # 从消息内容中提取实体
+    # 从消息内容中提取实体（只记录用户问答，排除工具调用）
     for msg in messages:
         msg_id, role, content, timestamp = msg
         if not content:
             continue
 
-        # 用户实体
+        # 跳过工具调用相关的内容
+        if "toolCall" in content or "[Tool:" in content or "tool_call" in content:
+            continue
+
+        # 用户消息实体
         if role == "user":
             entities.append({
                 "id": f"user_msg_{msg_id[:8]}",
@@ -174,19 +170,15 @@ def generate_graph_from_messages(snapshot_id, session_id=None):
                 "label": content[:50] + "..." if len(content) > 50 else content,
                 "properties": {"timestamp": timestamp, "session_id": session_id}
             })
-
-        # 工具调用实体
-        if "toolCall" in content or "Tool:" in content:
-            # 提取工具名
-            import re
-            tools = re.findall(r'\[Tool: (\w+)\]', content)
-            for tool in tools:
-                entities.append({
-                    "id": f"tool_{tool}_{msg_id[:8]}",
-                    "type": "tool_usage",
-                    "label": tool,
-                    "properties": {"timestamp": timestamp}
-                })
+        
+        # 助手消息实体
+        if role == "assistant":
+            entities.append({
+                "id": f"assistant_msg_{msg_id[:8]}",
+                "type": "assistant_message",
+                "label": content[:50] + "..." if len(content) > 50 else content,
+                "properties": {"timestamp": timestamp, "session_id": session_id}
+            })
 
     return entities
 
@@ -225,24 +217,19 @@ def export_daily_snapshot(output_dir=None):
         conn.close()
         return False
 
-    # 生成图谱数据
+    # 生成图谱数据（只记录用户问答，排除工具调用）
     nodes = []
     edges = []
 
     sessions = set()
-    tools_used = {}
 
     for msg in messages:
         session_id, msg_id, role, content, timestamp, tokens = msg
         sessions.add(session_id)
-
-        # 提取工具使用
-        import re
-        tool_matches = re.findall(r'\[Tool: (\w+)\]', content or "")
-        for tool in tool_matches:
-            if tool not in tools_used:
-                tools_used[tool] = []
-            tools_used[tool].append(session_id)
+        
+        # 跳过工具调用相关的内容
+        if content and ("toolCall" in content or "[Tool:" in content or "tool_call" in content):
+            continue
 
     # 创建会话节点
     for sid in sessions:
@@ -252,23 +239,6 @@ def export_daily_snapshot(output_dir=None):
             "label": f"会话 {sid[:8]}",
             "properties": {"session_id": sid}
         })
-
-    # 创建工具节点和边
-    for tool, sids in tools_used.items():
-        tool_id = f"tool_{tool}"
-        nodes.append({
-            "id": tool_id,
-            "type": "tool",
-            "label": tool,
-            "properties": {"usage_count": len(sids)}
-        })
-
-        for sid in sids:
-            edges.append({
-                "from": f"session_{sid[:8]}",
-                "to": tool_id,
-                "type": "uses"
-            })
 
     conn.close()
 
@@ -281,9 +251,9 @@ def export_daily_snapshot(output_dir=None):
 
     print(f"✅ 每日图谱导出完成: {output_path}")
     print(f"   - 会话数: {len(sessions)}")
-    print(f"   - 工具数: {len(tools_used)}")
     print(f"   - 节点数: {len(nodes)}")
     print(f"   - 边数: {len(edges)}")
+    print(f"   (已排除工具调用)")
 
     return True
 
@@ -349,51 +319,81 @@ def export_incremental():
     # 获取涉及的会话
     session_ids = set(msg[0] for msg in messages if msg[0])
     print(f"📥 涉及 {len(session_ids)} 个新会话")
+    
+    # 获取每个会话的核心用户问答作为摘要（只显示用户消息）
+    session_summaries = {}
+    for sid in session_ids:
+        # 只获取 role='user' 的用户消息，排除系统消息和工具调用
+        cursor.execute("""
+            SELECT content FROM messages 
+            WHERE session_id = ? 
+            AND role = 'user' 
+            AND content NOT LIKE 'Conversation info%'
+            AND content NOT LIKE 'Sender (untrusted%'
+            AND content NOT LIKE '%[Internal task completion%'
+            AND content NOT LIKE '%[Tool: %'
+            ORDER BY timestamp LIMIT 1
+        """, (sid,))
+        result = cursor.fetchone()
+        
+        if result and result[0]:
+            # 提取实际文本内容
+            content = result[0]
+            import re
+            text_match = re.search(r'(?:text|text\":\")([^\"]+)', content)
+            if text_match:
+                summary = text_match.group(1)[:80]
+            else:
+                summary = content[:80].replace('\n', ' ').strip()
+            if len(content) > 80:
+                summary += "..."
+            session_summaries[sid] = summary
+        else:
+            # 没有用户消息时标记为非用户会话
+            session_summaries[sid] = None
+    
+    # 过滤出有用户问答的会话
+    user_sessions = {sid: summary for sid, summary in session_summaries.items() if summary}
+    
+    # 显示核心用户会话
+    print(f"\n📋 核心用户会话:")
+    if user_sessions:
+        for i, sid in enumerate(sorted(user_sessions.keys())[:5]):
+            summary = user_sessions[sid]
+            print(f"   • 会话{i+1} | 用户请求：{summary}")
+        if len(user_sessions) > 5:
+            print(f"   ... 等共 {len(user_sessions)} 个用户会话")
+    else:
+        print("   (无核心用户会话)")
 
-    # 生成图谱
+    # 生成图谱（只记录用户问答会话，排除工具调用）
     nodes = []
     edges = []
-    tools_used = {}
 
+    # 记录已添加的会话
+    added_sessions = set()
+    
     for msg in messages:
         session_id, msg_id, role, content, timestamp, tokens = msg
 
-        # 会话节点
-        if session_id:
+        # 跳过工具调用相关的内容
+        if content and ("toolCall" in content or "[Tool:" in content or "tool_call" in content):
+            continue
+
+        # 只创建有用户问答的会话节点
+        if session_id and session_id in user_sessions:
             sid = session_id[:8]
-            if not any(n.get("id") == f"session_{sid}" for n in nodes):
+            if sid not in added_sessions:
+                added_sessions.add(sid)
                 nodes.append({
                     "id": f"session_{sid}",
                     "type": "session",
                     "label": f"会话 {sid}",
-                    "properties": {"session_id": session_id}
+                    "properties": {"session_id": session_id, "summary": user_sessions.get(session_id, "")}
                 })
-
-        # 提取工具
-        import re
-        tool_matches = re.findall(r'\[Tool: (\w+)\]', content or "")
-        for tool in tool_matches:
-            if tool not in tools_used:
-                tools_used[tool] = set()
-            if session_id:
-                tools_used[tool].add(session_id)
-
-    # 创建工具节点和边
-    for tool, sids in tools_used.items():
-        tool_id = f"tool_{tool}"
-        nodes.append({
-            "id": tool_id,
-            "type": "tool",
-            "label": tool,
-            "properties": {"usage_count": len(sids)}
-        })
-
-        for sid in sids:
-            edges.append({
-                "from": f"session_{sid[:8]}",
-                "to": tool_id,
-                "type": "uses"
-            })
+    
+    # 移除工具统计信息输出
+    print(f"   - 工具数: 0 (已排除)")
 
     # 记录本次导出的时间点，供下次增量使用
     if max_timestamp:
@@ -414,10 +414,10 @@ def export_incremental():
             f.write(json.dumps(edge, ensure_ascii=False) + "\n")
 
     print(f"✅ 增量图谱导出完成: {output_path}")
-    print(f"   - 会话数: {len(session_ids)}")
-    print(f"   - 工具数: {len(tools_used)}")
+    print(f"   - 用户会话数: {len(user_sessions)}")
     print(f"   - 节点数: {len(nodes)}")
     print(f"   - 边数: {len(edges)}")
+    print(f"   (已排除工具调用相关内容)")
 
     return True
 
