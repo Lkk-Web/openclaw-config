@@ -273,6 +273,14 @@
         "zhipu/ZhipuAI/GLM-5": {}
       },
       "workspace": "~/.openclaw/agents/main/workspace",
+      "memorySearch": {
+        "provider": "openai",
+        "remote": {
+          "baseUrl": "${EMBEDDING_BASE_URL}/v1",
+          "apiKey": "${EMBEDDING_API_KEY}"
+        },
+        "model": "m3e-large"
+      },
       "compaction": {
         "mode": "safeguard"
       },

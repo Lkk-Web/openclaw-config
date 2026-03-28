@@ -24,8 +24,12 @@ cron/
 devices/
 identity/
 logs/
-memory/
 browser/
+
+# memory
+# 忽略所有 memory 目录下的内容（任意层级）
+**/memory/*
+!**/memory/scripts/
 
 # Node modules
 node_modules/
