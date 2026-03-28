@@ -59,6 +59,7 @@ def parse_session_file(filepath):
     sessions = []
     messages = []
     tools = []
+    current_session_id = None
     
     with open(filepath, 'r', encoding='utf-8') as f:
         for line in f:
@@ -70,8 +71,9 @@ def parse_session_file(filepath):
                 record_type = data.get("type")
                 
                 if record_type == "session":
+                    current_session_id = data.get("id")
                     sessions.append({
-                        "session_id": data.get("id"),
+                        "session_id": current_session_id,
                         "agent_id": "main",
                         "timestamp": data.get("timestamp"),
                         "cwd": data.get("cwd")
@@ -88,7 +90,7 @@ def parse_session_file(filepath):
                     
                     messages.append({
                         "message_id": data.get("id"),
-                        "session_id": data.get("parentId", "").split("-")[0] if data.get("parentId") else "",
+                        "session_id": current_session_id if current_session_id else "",
                         "parent_id": data.get("parentId"),
                         "role": role,
                         "content": get_text_content(content, role=role),
@@ -105,6 +107,7 @@ def parse_session_file(filepath):
                             
                             tools.append({
                                 "tool_id": tool_call_id,
+                                "session_id": current_session_id if current_session_id else "",
                                 "message_id": data.get("id"),
                                 "tool_name": tool_name,
                                 "arguments": tool_args,
@@ -122,6 +125,9 @@ def parse_session_file(filepath):
                         if tool["tool_id"] == tool_call_id:
                             tool["result"] = result_text[:5000]  # 限制长度
                             tool["is_error"] = is_error
+                            # 补充 session_id
+                            if not tool.get("session_id") and current_session_id:
+                                tool["session_id"] = current_session_id
                             break
                             
             except json.JSONDecodeError:
@@ -234,6 +240,8 @@ def import_sessions(agent_id="main", limit=None):
                    (SELECT content FROM messages 
                     WHERE session_id = s.session_id 
                     AND role = 'user' 
+                    AND content IS NOT NULL
+                    AND content != ''
                     ORDER BY timestamp LIMIT 1) as first_user_msg
             FROM sessions s
             WHERE s.session_id IN (
@@ -246,7 +254,7 @@ def import_sessions(agent_id="main", limit=None):
         import re
         print(f"\n📋 核心用户会话:")
         for sid, started_at, msg_count, first_user_msg in session_details:
-            if first_user_msg:
+            if first_user_msg and first_user_msg.strip():
                 # 尝试提取纯文本内容
                 text_match = re.search(r'(?:text|text\":\")([^\"]+)', first_user_msg)
                 if text_match:
@@ -256,6 +264,9 @@ def import_sessions(agent_id="main", limit=None):
                     summary = first_user_msg[:60].replace('\n', ' ').strip()
                 if len(first_user_msg) > 60:
                     summary += "..."
+                # 过滤掉元数据前缀和时间戳
+                summary = re.sub(r'^\[Internal.*?\]\s*', '', summary)
+                summary = re.sub(r'^\[[A-Za-z]{3}\s+\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}\s+GMT[+-]?\d+\]\s*', '', summary)
             else:
                 summary = "(无用户消息)"
             print(f"   • {sid[:12]}... | {msg_count}条消息 | 用户请求：{summary}")

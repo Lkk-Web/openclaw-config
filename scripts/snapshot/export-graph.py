@@ -332,6 +332,8 @@ def export_incremental():
             AND content NOT LIKE 'Sender (untrusted%'
             AND content NOT LIKE '%[Internal task completion%'
             AND content NOT LIKE '%[Tool: %'
+            AND content IS NOT NULL
+            AND content != ''
             ORDER BY timestamp LIMIT 1
         """, (sid,))
         result = cursor.fetchone()
@@ -360,7 +362,17 @@ def export_incremental():
     if user_sessions:
         for i, sid in enumerate(sorted(user_sessions.keys())[:5]):
             summary = user_sessions[sid]
-            print(f"   • 会话{i+1} | 用户请求：{summary}")
+            # 获取该会话的消息数
+            cursor.execute("SELECT COUNT(*) FROM messages WHERE session_id = ?", (sid,))
+            result = cursor.fetchone()
+            msg_count = result[0] if result else 0
+            # 清理元数据前缀
+            import re
+            summary = re.sub(r'^\[Internal.*?\]\s*', '', summary)
+            # 获取前60字符
+            if summary and len(summary) > 60:
+                summary = summary[:60] + "..."
+            print(f"   • {sid[:12]}... | {msg_count}条消息 | 用户请求：{summary}")
         if len(user_sessions) > 5:
             print(f"   ... 等共 {len(user_sessions)} 个用户会话")
     else:
