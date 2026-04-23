@@ -303,7 +303,8 @@
           "allowAgents": [
             "dev-assistant",
             "product-manager",
-            "harness"
+            "harness",
+            "investor"
           ]
         }
       },
@@ -334,6 +335,13 @@
         "model": {
           "primary": "cass-gpt/MiniMax-M2.5"
         }
+      },
+      {
+        "id": "investor",
+        "workspace": "~/.openclaw/agents/investor/workspace",
+        "model": {
+          "primary": "cass-gpt/MiniMax-M2.5"
+        }
       }
     ]
   },
@@ -347,7 +355,8 @@
         "main",
         "dev-assistant",
         "product-manager",
-        "harness"
+        "harness",
+        "investor"
       ]
     }
   },
@@ -468,7 +477,8 @@
       "extraDirs": [
         "~/.openclaw/skills",
         "~/.openclaw/agents/dev-assistant/workspace/skills",
-        "~/.openclaw/agents/main/workspace/skills"
+        "~/.openclaw/agents/main/workspace/skills",
+        "~/.openclaw/agents/investor/workspace/skills"
       ],
       "watch": true,
       "watchDebounceMs": 250
