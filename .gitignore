@@ -10,7 +10,6 @@ agents/*/sessions/
 agents/*/agent/
 agents/*/workspace/*.json
 agents/*/workspace/.openclaw
-agents/investor
 
 # 临时文件
 *.tmp
