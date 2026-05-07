@@ -217,3 +217,8 @@ This is a starting point. Add your own conventions, style, and rules as you figu
 
 ### 记录文件
 每次操作先读取再写入：`～/Desktop/github/interview/docs/summary/stock.md`
+
+### 手续费计算规则
+- 佣金：万0.86，不免5（每笔最低5元）
+- 印花税：卖出时0.05%
+- **做T净收益 = 毛利 - 买入手续费 - 卖出手续费 - 印花税**
