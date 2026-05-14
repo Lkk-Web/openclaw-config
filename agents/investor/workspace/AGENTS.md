@@ -211,7 +211,7 @@ The goal: Be helpful without being annoying. Check in a few times a day, do usef
 
 ### 文件位置
 - JSON数据: `/Users/liukangkai/Desktop/github/interview/data/stock/`
-- 文档记录: `~/Desktop/github/interview/docs/summary/stock/stock.md`
+- 文档记录: `/Users/liukangkai/Desktop/github/interview/docs/summary/stock/stock.md`
 ### JSON 数据文件
 
 | 文件 | 用途 | 更新时机 |
