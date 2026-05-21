@@ -38,59 +38,8 @@
             }
           },
           {
-            "id": "qwen3-max-2026-01-23",
-            "name": "qwen3-max-2026-01-23",
-            "reasoning": false,
-            "input": [
-              "text"
-            ],
-            "cost": {
-              "input": 0,
-              "output": 0,
-              "cacheRead": 0,
-              "cacheWrite": 0
-            },
-            "contextWindow": 262144,
-            "maxTokens": 65536,
-            "compat": {
-              "thinkingFormat": "qwen"
-            }
-          },
-          {
-            "id": "qwen3-coder-next",
-            "name": "qwen3-coder-next",
-            "reasoning": false,
-            "input": [
-              "text"
-            ],
-            "cost": {
-              "input": 0,
-              "output": 0,
-              "cacheRead": 0,
-              "cacheWrite": 0
-            },
-            "contextWindow": 262144,
-            "maxTokens": 65536
-          },
-          {
-            "id": "qwen3-coder-plus",
-            "name": "qwen3-coder-plus",
-            "reasoning": false,
-            "input": [
-              "text"
-            ],
-            "cost": {
-              "input": 0,
-              "output": 0,
-              "cacheRead": 0,
-              "cacheWrite": 0
-            },
-            "contextWindow": 1000000,
-            "maxTokens": 65536
-          },
-          {
-            "id": "MiniMax-M2.5",
-            "name": "MiniMax-M2.5",
+            "id": "MiniMax-M2.7-highspeed",
+            "name": "MiniMax-M2.7-highspeed",
             "reasoning": false,
             "input": [
               "text",
@@ -106,89 +55,8 @@
             "maxTokens": 32768
           },
           {
-            "id": "glm-5",
-            "name": "glm-5",
-            "reasoning": false,
-            "input": [
-              "text"
-            ],
-            "cost": {
-              "input": 0,
-              "output": 0,
-              "cacheRead": 0,
-              "cacheWrite": 0
-            },
-            "contextWindow": 202752,
-            "maxTokens": 16384,
-            "compat": {
-              "thinkingFormat": "qwen"
-            }
-          },
-          {
-            "id": "kimi-k2.5",
-            "name": "kimi-k2.5",
-            "reasoning": false,
-            "input": [
-              "text",
-              "image"
-            ],
-            "cost": {
-              "input": 0,
-              "output": 0,
-              "cacheRead": 0,
-              "cacheWrite": 0
-            },
-            "contextWindow": 262144,
-            "maxTokens": 32768,
-            "compat": {
-              "thinkingFormat": "qwen"
-            }
-          },
-          {
             "id": "deepseek-chat",
             "name": "deepseek-chat",
-            "reasoning": false,
-            "input": [
-              "text",
-              "image"
-            ],
-            "cost": {
-              "input": 0,
-              "output": 0,
-              "cacheRead": 0,
-              "cacheWrite": 0
-            },
-            "contextWindow": 170000,
-            "maxTokens": 100000
-          }
-        ]
-      },
-      "cass-claude": {
-        "baseUrl": "${CASS_BASE_URL}",
-        "apiKey": "${CASS_API_KEY}",
-        "api": "anthropic-messages",
-        "models": [
-          {
-            "id": "claude-sonnet-4-6",
-            "name": "claude-sonnet-4-6",
-            "reasoning": false,
-            "input": [
-              "text",
-              "image"
-            ],
-            "cost": {
-              "input": 0,
-              "output": 0,
-              "cacheRead": 0,
-              "cacheWrite": 0
-            },
-            "contextWindow": 170000,
-            "maxTokens": 100000
-          },
-          {
-            "id": "claude-opus-4-6",
-            "name": "claude-opus-4-6",
-            "api": "anthropic-messages",
             "reasoning": false,
             "input": [
               "text",
@@ -257,7 +125,7 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "cass-gpt/MiniMax-M2.5"
+        "primary": "cass-gpt/MiniMax-M2.7-highspeed"
       },
       "models": {
         "cass-gpt/qwen3.5-plus": {},
@@ -266,7 +134,7 @@
         "cass-gpt/qwen3-coder-plus": {},
         "cass-gpt/glm-5": {},
         "cass-gpt/kimi-k2.5": {},
-        "cass-gpt/MiniMax-M2.5": {},
+        "cass-gpt/MiniMax-M2.7-highspeed": {},
         "cass-gpt/deepseek-chat": {},
         "cass-claude/claude-opus-4-6": {},
         "cass-claude/claude-sonnet-4-6": {},
@@ -294,7 +162,7 @@
         "id": "main",
         "workspace": "~/.openclaw/agents/main/workspace",
         "model": {
-          "primary": "cass-gpt/MiniMax-M2.5"
+          "primary": "cass-gpt/MiniMax-M2.7-highspeed"
         },
         "heartbeat": {
           "accountId": "main"
@@ -312,7 +180,7 @@
         "id": "dev-assistant",
         "workspace": "~/.openclaw/agents/dev-assistant/workspace",
         "model": {
-          "primary": "cass-gpt/MiniMax-M2.5"
+          "primary": "cass-gpt/MiniMax-M2.7-highspeed"
         },
         "subagents": {
           "allowAgents": [
@@ -326,21 +194,21 @@
         "id": "product-manager",
         "workspace": "~/.openclaw/agents/product-manager/workspace",
         "model": {
-          "primary": "cass-gpt/MiniMax-M2.5"
+          "primary": "cass-gpt/MiniMax-M2.7-highspeed"
         }
       },
       {
         "id": "harness",
         "workspace": "~/.openclaw/agents/harness/workspace",
         "model": {
-          "primary": "cass-gpt/MiniMax-M2.5"
+          "primary": "cass-gpt/MiniMax-M2.7-highspeed"
         }
       },
       {
         "id": "investor",
         "workspace": "~/.openclaw/agents/investor/workspace",
         "model": {
-          "primary": "cass-gpt/MiniMax-M2.5"
+          "primary": "cass-gpt/MiniMax-M2.7-highspeed"
         }
       }
     ]
